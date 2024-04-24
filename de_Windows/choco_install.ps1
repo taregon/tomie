@@ -7,33 +7,38 @@
 ##################################################
 
 # Check Permissions
-if ( -Not( (New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) ){
+if ( -Not( (New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) ) {
     Write-Error -Message "Script needs Administrator permissions"
     exit 1
 }
 
 if (-Not (Get-Command "choco" -errorAction SilentlyContinue)) {
-   [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-   iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 }
 
 choco feature enable -n=allowGlobalConfirmation
 
-## https://chocolatey.org/packages
-
+# PARA AGREGAR PROGRAMAS:
+# https://chocolatey.org/packages
 choco install 7zip
+choco install aimp
 choco install anydesk
+choco install brave
 choco install chocolateygui
+choco install dropbox
 choco install firefox
 choco install inkscape
-choco install mpv 
+choco install mpv
+choco install telegram
+choco install upscayl
 choco install visualstudiocode
 choco install vlc
 
-## Sysinternals
+# SYSINTERNALS
 choco install autoruns
 
-## HARDWARE MONITORING
+# HARDWARE MONITORING
 choco install cpu-z
 choco install gpu-z
 choco install pci-z
