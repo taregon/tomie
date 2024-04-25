@@ -32,14 +32,15 @@ choco feature enable -n=allowGlobalConfirmation
 choco install 7zip
 choco install aimp
 choco install anydesk
+choco install audacity
 choco install chocolateygui
 choco install dropbox
 choco install inkscape
 choco install mpv
 choco install telegram
 choco install upscayl
-choco install visualstudiocode
 choco install vlc
+choco install vscode
 
 # ================================
 # NAVEGADORES
@@ -51,9 +52,15 @@ choco install brave
 # SYSINTERNALS
 # ================================
 choco install autoruns
+choco install cmder
+choco install git
 
 # ================================
 # HARDWARE MONITORING
 # ================================
+choco install bulk-crap-uninstaller
 choco install cpu-z
+choco install dupeguru
+choco install librehardwaremonitor
+choco install treesizefree
 choco install usbdeview
