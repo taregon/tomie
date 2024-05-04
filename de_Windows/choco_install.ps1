@@ -86,6 +86,6 @@ choco install bulk-crap-uninstaller
 choco install cpu-z
 choco install crystaldiskinfo
 choco install dupeguru
-choco install librkehardwaremonitor
+choco install librehardwaremonitor
 choco install treesizefree
 choco install usbdeview
