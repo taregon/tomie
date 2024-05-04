@@ -41,6 +41,15 @@ choco install telegram
 choco install upscayl
 choco install vlc
 choco install vscode
+choco install foxitreader
+choco install lightscreen
+choco install syncplay
+choco install mp3tag
+choco install rawtherapee
+choco install
+choco install
+choco install
+
 
 # ================================
 # NAVEGADORES
@@ -53,6 +62,7 @@ choco install brave
 # ================================
 choco install autoruns
 choco install cmder
+choco install spek
 choco install git
 
 # ================================
@@ -63,4 +73,5 @@ choco install cpu-z
 choco install dupeguru
 choco install librehardwaremonitor
 choco install treesizefree
+choco install crystaldiskinfo
 choco install usbdeview
