@@ -29,7 +29,6 @@ choco feature enable -n=allowGlobalConfirmation
 # ======================================
 # APLICACIONES
 # ======================================
-choco install
 choco install 7zip
 choco install aimp
 choco install anydesk
@@ -69,6 +68,7 @@ choco install mremoteng
 choco install onecommander
 choco install putty
 choco install spek
+
 # ======================================
 # COMANDOS
 # ======================================
