@@ -15,12 +15,13 @@
 # Fragmento obtenido de https://gist.github.com/apfelchips/792f7708d0adff7785004e9855794bc0
 # Revisa si PowerSHell esta como administrador
 
-if ( -Not( (New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) ) {
-    Write-Error -Message "Debes ejecutar PowerShell como Administrador"
+if (-Not( (New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) ) {
+    Write-Error -Message "* * * Debes ejecutar PowerShell como Administrador * * *"
     exit 1
 }
 
 if (-Not (Get-Command "choco" -errorAction SilentlyContinue)) {
+    Write-Host "`n Instalando Chocolatey" -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 }
@@ -28,16 +29,20 @@ if (-Not (Get-Command "choco" -errorAction SilentlyContinue)) {
 # ======================================
 # AJUSTES EN CHOCOLATELY
 # ======================================
-$ChocoDirCache = "$env:ALLUSERSPROFILE\choco-cache"
+$ChocoDirCache = "$env:ALLUSERSPROFILE\ChocolateyAppsCache"
+
+Write-Host "* Ruta para la descarga de Aplicaciones"
 choco config set cacheLocation $ChocoDirCache
+Write-Host "* Limite de ejecucion de comandos a 30 minutos"
 choco config set commandExecutionTimeoutSeconds 1800
+Write-Host "* Habilitando confirmacion global para instalacion de Aplicaciones"
 choco feature enable -n=allowGlobalConfirmation
 
 # ======================================
 # DECORACIONES DE PANTALLA
 # ======================================
 $host.UI.RawUI.WindowTitle = "Instalando aplicaciones con Chocolatey"
-Write-Host "`n Instalando Chocolatey y otras aplicaciones " -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
+Write-Host "`n Instalando aplicaciones " -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
 
 $ChocoDate = {
     Write-Host "====================" -ForegroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
@@ -48,65 +53,88 @@ $ChocoDate = {
 .$ChocoDate
 
 # ======================================
-# APLICACIONES
+# LISTA DE APLICACIONES
 # ======================================
-choco install 7zip
-choco install aimp
-choco install anydesk
-choco install audacity
-choco install chocolateygui
-choco install conemu
-choco install dropbox
-choco install f.lux
-choco install foxitreader
-choco install inkscape
-choco install lightscreen
-choco install mp3tag
-choco install mpv
-choco install rawtherapee
-choco install syncplay
-choco install telegram
-choco install upscayl
-choco install vlc
-choco install vscode
+$Aplicaciones = @(
+    # ----------------------------------
+    # DE USUARIO
+    # ----------------------------------
+    "7zip",
+    "aimp",
+    "anydesk",
+    "audacity",
+    "chocolateygui",
+    "conemu",
+    "dropbox",
+    "f.lux",
+    "foxitreader",
+    "inkscape",
+    "lightscreen",
+    "mp3tag",
+    "mpv",
+    "rawtherapee",
+    "syncplay",
+    "telegram",
+    "upscayl",
+    "vlc",
+    "exiftool",
+    "vscode",
+    # ----------------------------------
+    # SYSINTERNALS
+    # ----------------------------------
+    "advanced-ip-scanner",
+    "autoruns",
+    "dupeguru",
+    "fastcopy",
+    "HashCheck",
+    "lockhunter",
+    "mremoteng",
+    "onecommander",
+    "putty",
+    "spek",
+    # ----------------------------------
+    # COMANDOS
+    # ----------------------------------
+    "adb",
+    "bind-toolsonly",
+    "cmder",
+    "git",
+    "nmap",
+    "yt-dlp",
+    # ----------------------------------
+    # HARDWARE MONITORING
+    # ----------------------------------
+    "bulk-crap-uninstaller",
+    "cpu-z",
+    "crystaldiskinfo",
+    "dupeguru",
+    "librehardwaremonitor",
+    "treesizefree",
+    "usbdeview"
+)
 
 # ======================================
-# NAVEGADORES
+# INSTALANDO PROGRAMAS
 # ======================================
-choco install brave
-choco install firefox --params "/l:es-MX"
+function ChocoApps {
 
-# ======================================
-# SYSINTERNALS
-# ======================================
-choco install advanced-ip-scanner
-choco install autoruns
-choco install dupeguru
-choco install fastcopy
-choco install HashCheck     # Pestaña en propiedades de archivo
-choco install lockhunter
-choco install mremoteng
-choco install onecommander
-choco install putty
-choco install spek
+    [cmdletbinding()]
+    param (
+        [String]$Apps
+    )
 
-# ======================================
-# COMANDOS
-# ======================================
-choco install adb
-choco install bind-toolsonly
-choco install cmder
-choco install git
-choco install nmap
-choco install yt-dlp
+    $ChocoLibPath = "$env:ChocolateyInstall\lib"
 
-# ======================================
-# HARDWARE MONITORING
-# ======================================
-choco install bulk-crap-uninstaller
-choco install cpu-z
-choco install crystaldiskinfo
-choco install dupeguru
-choco install librehardwaremonitor
-choco install treesizefree
-choco install usbdeview
+    if (!((test-path "$ChocoLibPath\$Apps"))) {
+
+        Write-Host "[INFO] Instalando $Apps" -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
+        choco install $Apps --nocolor --limitoutput
+    }
+    else {
+        Write-Host "[OK] $Apps" -ForegroundColor Green -NoNewline; Write-Host ([char]0xA0)
+    }
+}
+
+foreach ($Package in $Aplicaciones) {
+    ChocoApps -Apps $Package
+}
