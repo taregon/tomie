@@ -4,6 +4,7 @@
 .NOTES
     Primero ejecutar Powershell como administrador
     Luego, habilitar la ejecución de script
+    Ruta de logs: C:\ProgramData\chocolatey\logs\chocolatey.log
 .EXAMPLE
     Set-ExecutionPolicy Bypass -Scope Process
 .LINK
@@ -11,7 +12,7 @@
     https://chocolatey.org/packages
 #>
 
-# Porción obtenida de https://gist.github.com/apfelchips/792f7708d0adff7785004e9855794bc0
+# Fragmento obtenido de https://gist.github.com/apfelchips/792f7708d0adff7785004e9855794bc0
 # Revisa si PowerSHell esta como administrador
 
 if ( -Not( (New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) ) {
@@ -24,7 +25,27 @@ if (-Not (Get-Command "choco" -errorAction SilentlyContinue)) {
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 }
 
+# ======================================
+# AJUSTES EN CHOCOLATELY
+# ======================================
+$ChocoDirCache = "$env:ALLUSERSPROFILE\choco-cache"
+choco config set cacheLocation $ChocoDirCache
+choco config set commandExecutionTimeoutSeconds 1800
 choco feature enable -n=allowGlobalConfirmation
+
+# ======================================
+# DECORACIONES DE PANTALLA
+# ======================================
+$host.UI.RawUI.WindowTitle = "Instalando aplicaciones con Chocolatey"
+Write-Host "`n Instalando Chocolatey y otras aplicaciones " -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
+
+$ChocoDate = {
+    Write-Host "====================" -ForegroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
+    Write-Host " Fecha: $(Get-Date -UFormat "%d %b %Y") " -ForegroundColor DarkYellow -NoNewline; Write-Host ([char]0xA0)
+    Write-Host " Hora:  $(Get-Date -f "HH:mm:ss") " -ForegroundColor DarkYellow -NoNewline; Write-Host ([char]0xA0)
+    Write-Host "====================" -ForegroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
+}
+.$ChocoDate
 
 # ======================================
 # APLICACIONES
