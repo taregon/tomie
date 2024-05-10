@@ -25,9 +25,9 @@ if (-Not (Get-Command "choco" -errorAction SilentlyContinue)) {
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 }
-# ======================================
-# AJUSTES EN CHOCOLATELY
-# ======================================
+# ==========================================================
+# AJUSTES EN CHOCOLATELY#
+# ==========================================================
 $ChocoDirCache = "$env:ALLUSERSPROFILE\ChocolateyAppsCache"
 $ChocoDirLog = "$ChocoDirCache/$env:COMPUTERNAME"
 $ChocoLibPath = "$env:ChocolateyInstall\lib"
@@ -39,10 +39,9 @@ Write-Host "* Limite de ejecucion de comandos a 30 minutos"
 choco config set commandExecutionTimeoutSeconds 1800
 Write-Host "* Habilitando confirmacion global para instalacion de Aplicaciones"
 choco feature enable -n=allowGlobalConfirmation
-
-# ======================================
+# ==========================================================
 # DECORACIONES DE PANTALLA
-# ======================================
+# ==========================================================
 $host.UI.RawUI.WindowTitle = "Instalando aplicaciones con Chocolatey"
 Write-Host "`n Instalando aplicaciones " -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
 
@@ -53,17 +52,15 @@ $ChocoDate = {
     Write-Host "====================" -ForegroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
 }
 .$ChocoDate
-
-# ======================================
+# ==========================================================
 # LISTA DE APLICACIONES
-# ======================================
+# ==========================================================
 $Aplicaciones = @(
-    # ----------------------------------
+    # ------------------------------------------------------
     # DE USUARIO
-    # ----------------------------------
+    # ------------------------------------------------------
     "7zip",
     "aimp",
-    "anydesk"
     "anydesk",
     "audacity",
     "chocolateygui",
@@ -81,14 +78,14 @@ $Aplicaciones = @(
     "upscayl",
     "vlc",
     "vscode",
-    # ----------------------------------
+    # ------------------------------------------------------
     # NAVEGADORES
-    # ----------------------------------
+    # ------------------------------------------------------
     "brave",
     "firefox",
-    # ----------------------------------
+    # ------------------------------------------------------
     # SYSINTERNALS
-    # ----------------------------------
+    # ------------------------------------------------------
     "advanced-ip-scanner",
     "autoruns",
     "dupeguru",
@@ -100,9 +97,9 @@ $Aplicaciones = @(
     "onecommander",
     "putty",
     "spek",
-    # ----------------------------------
+    # ------------------------------------------------------
     # COMANDOS
-    # ----------------------------------
+    # ------------------------------------------------------
     "adb",
     "bind-toolsonly",
     "cmder",
@@ -111,9 +108,9 @@ $Aplicaciones = @(
     "nmap",
     "whois",
     "yt-dlp",
-    # ----------------------------------
+    # ------------------------------------------------------
     # HARDWARE MONITORING
-    # ----------------------------------
+    # ------------------------------------------------------
     "bulk-crap-uninstaller",
     "cpu-z",
     "crystaldiskinfo",
@@ -122,9 +119,9 @@ $Aplicaciones = @(
     "treesizefree",
     "usbdeview"
 )
-# ======================================
+# ==========================================================
 # INSTALANDO PROGRAMAS
-# ======================================
+# ==========================================================
 # Fragmento obtenido de: https://gist.github.com/RafaelM1994/791cb40d8df4994dd1371bd40e346424
 function Install-ChocoApps {
     param (
@@ -136,7 +133,6 @@ function Install-ChocoApps {
         Write-Host "[INFO] Instalando $ChocoApps" -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
         choco install $ChocoApps --params $ChocoParams --nocolor --limitoutput --log-file=$ChocoLog
         Write-Host "Tiempo de ejecucion: $((Get-Date).Subtract($StartTime).Seconds) segundos" -ForegroundColor DarkGray -NoNewline; Write-Host ([char]0xA0)
-
     }
     else {
         Write-Host "[ OK ] $ChocoApps $ChocoParams" -ForegroundColor Green -NoNewline; Write-Host ([char]0xA0)
@@ -150,9 +146,9 @@ foreach ($Package in $Aplicaciones) {
     }
     Install-ChocoApps -ChocoApps $Package -ChocoParams $Params
 }
-# ======================================
+# ==========================================================
 # AGREGANDO TAREA PROGRAMADA
-# ======================================
+# ==========================================================
 $ChocoUpgrade = @{
     Name               = "Chocolatey Daily Upgrade"
     ScriptBlock        = { choco upgrade all -y }
@@ -160,9 +156,9 @@ $ChocoUpgrade = @{
     ScheduledJobOption = New-ScheduledJobOption -RunElevated -MultipleInstancePolicy StopExisting -RequireNetwork
 }
 Register-ScheduledJob @ChocoUpgrade
-# ======================================
+# ==========================================================
 # EXTRA (LUEGO LO ELIMINO)
-# ======================================
+# ==========================================================
 $appsToInstall = $Aplicaciones -split "," | foreach { "$($_.Trim())" }
 
 Write-Host "$appsToInstall"
