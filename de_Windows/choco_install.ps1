@@ -25,11 +25,13 @@ if (-Not (Get-Command "choco" -errorAction SilentlyContinue)) {
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
     Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 }
-
 # ======================================
 # AJUSTES EN CHOCOLATELY
 # ======================================
 $ChocoDirCache = "$env:ALLUSERSPROFILE\ChocolateyAppsCache"
+$ChocoDirLog = "$ChocoDirCache/$env:COMPUTERNAME"
+$ChocoLibPath = "$env:ChocolateyInstall\lib"
+$ChocoLog = "$ChocoDirLog\chocolatey_log_$(Get-Date -UFormat "%Y-%m-%d").log"
 
 Write-Host "* Ruta para la descarga de Aplicaciones"
 choco config set cacheLocation $ChocoDirCache
@@ -61,6 +63,7 @@ $Aplicaciones = @(
     # ----------------------------------
     "7zip",
     "aimp",
+    "anydesk"
     "anydesk",
     "audacity",
     "chocolateygui",
@@ -77,8 +80,12 @@ $Aplicaciones = @(
     "telegram",
     "upscayl",
     "vlc",
-    "exiftool",
     "vscode",
+    # ----------------------------------
+    # NAVEGADORES
+    # ----------------------------------
+    "brave",
+    "firefox",
     # ----------------------------------
     # SYSINTERNALS
     # ----------------------------------
@@ -86,6 +93,7 @@ $Aplicaciones = @(
     "autoruns",
     "dupeguru",
     "fastcopy",
+    "filezilla",
     "HashCheck",
     "lockhunter",
     "mremoteng",
@@ -98,8 +106,10 @@ $Aplicaciones = @(
     "adb",
     "bind-toolsonly",
     "cmder",
+    "exiftool",
     "git",
     "nmap",
+    "whois",
     "yt-dlp",
     # ----------------------------------
     # HARDWARE MONITORING
@@ -112,29 +122,47 @@ $Aplicaciones = @(
     "treesizefree",
     "usbdeview"
 )
-
 # ======================================
 # INSTALANDO PROGRAMAS
 # ======================================
-function ChocoApps {
-
-    [cmdletbinding()]
+# Fragmento obtenido de: https://gist.github.com/RafaelM1994/791cb40d8df4994dd1371bd40e346424
+function Install-ChocoApps {
     param (
-        [String]$Apps
+        [String]$ChocoApps,
+        [String]$ChocoParams
     )
+    if (!((test-path "$ChocoLibPath\$ChocoApps"))) {
+        $StartTime = Get-Date
+        Write-Host "[INFO] Instalando $ChocoApps" -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
+        choco install $ChocoApps --params $ChocoParams --nocolor --limitoutput --log-file=$ChocoLog
+        Write-Host "Tiempo de ejecucion: $((Get-Date).Subtract($StartTime).Seconds) segundos" -ForegroundColor DarkGray -NoNewline; Write-Host ([char]0xA0)
 
-    $ChocoLibPath = "$env:ChocolateyInstall\lib"
-
-    if (!((test-path "$ChocoLibPath\$Apps"))) {
-
-        Write-Host "[INFO] Instalando $Apps" -ForegroundColor Black -BackgroundColor Yellow -NoNewline; Write-Host ([char]0xA0)
-        choco install $Apps --nocolor --limitoutput
     }
     else {
-        Write-Host "[OK] $Apps" -ForegroundColor Green -NoNewline; Write-Host ([char]0xA0)
+        Write-Host "[ OK ] $ChocoApps $ChocoParams" -ForegroundColor Green -NoNewline; Write-Host ([char]0xA0)
     }
 }
-
 foreach ($Package in $Aplicaciones) {
-    ChocoApps -Apps $Package
+    switch ($Package) {
+        "firefox" { $Params = "/l:es-MX" }
+        # "audacity" { $Params = "--some-params" }
+        default { $Params = "" }
+    }
+    Install-ChocoApps -ChocoApps $Package -ChocoParams $Params
 }
+# ======================================
+# AGREGANDO TAREA PROGRAMADA
+# ======================================
+$ChocoUpgrade = @{
+    Name               = "Chocolatey Daily Upgrade"
+    ScriptBlock        = { choco upgrade all -y }
+    Trigger            = New-JobTrigger -Daily -at "8:00PM"
+    ScheduledJobOption = New-ScheduledJobOption -RunElevated -MultipleInstancePolicy StopExisting -RequireNetwork
+}
+Register-ScheduledJob @ChocoUpgrade
+# ======================================
+# EXTRA (LUEGO LO ELIMINO)
+# ======================================
+$appsToInstall = $Aplicaciones -split "," | foreach { "$($_.Trim())" }
+
+Write-Host "$appsToInstall"
